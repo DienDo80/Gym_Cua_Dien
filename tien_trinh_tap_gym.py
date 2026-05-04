@@ -226,21 +226,58 @@ def main():
                     }).execute()
                     st.success("Đã phân bổ chiêu thức!")
 
-    elif menu == "📈 Bản Đồ Chiến Lược":
-        st.header("📊 Chiến Lược Gia")
-        st.markdown(f"### ⚔️ MICROCYCLE (Tuần {current_week} / {meso_length})")
-        st.progress(min(current_week / (meso_length + 1), 1.0))
-        if current_week <= meso_length:
-            if st.button("▶️ Chốt Tuần. Chuyển sang Tuần Tiếp Theo"):
-                supabase.table("userprofile").update({"micro_week": current_week + 1}).eq("id", 1).execute()
-                st.rerun()
-        if current_week > meso_length:
-            with st.form("deload"):
-                next_goal = st.selectbox("Mục tiêu tới:", ["Hypertrophy", "Strength"])
-                if st.form_submit_button("Hoàn thành Deload & Bắt đầu Chiến Dịch Mới"):
-                    supabase.table("userprofile").update({"micro_week": 1, "meso_goal": next_goal}).eq("id", 1).execute()
+   elif menu == "📈 Bản Đồ Chiến Lược":
+        st.header(f"📊 Chiến Lược Gia Cơ Bắp - {selected_name}")
+        macro_goal = u.get("macro_goal", "Xây nền tảng")
+        
+        with st.container():
+            st.markdown("### 🌍 TẦNG 1: MACROCYCLE (Tầm nhìn Vĩ mô)")
+            with st.form("macro_form"):
+                new_macro = st.text_input("Định hình chiến lược dài hạn:", value=macro_goal)
+                if st.form_submit_button("Lưu Macrocycle"):
+                    supabase.table("userprofile").update({"macro_goal": new_macro}).eq("id", 1).execute()
                     st.rerun()
 
+        st.markdown("---")
+        with st.container():
+            st.markdown(f"### 🛡️ TẦNG 2: MESOCYCLE (Chiến dịch Trọng điểm)")
+            c1, c2 = st.columns(2)
+            c1.metric("Mục tiêu hiện tại:", current_goal)
+            with c2.expander("Sửa đổi độ dài chiến dịch"):
+                with st.form("meso_len_form"):
+                    new_len = st.selectbox("Độ dài Giai đoạn này (Tuần):", [4, 6, 8, 12], index=[4, 6, 8, 12].index(meso_length))
+                    if st.form_submit_button("Cập nhật"):
+                        supabase.table("userprofile").update({"meso_length": new_len}).eq("id", 1).execute()
+                        st.rerun()
+
+        st.markdown("---")
+        with st.container():
+            if current_week > meso_length:
+                st.error(f"🛑 ĐÃ CHẠM NGƯỠNG TUẦN {current_week}. KÍCH HOẠT GIAO THỨC DELOAD!")
+            elif current_week == 1:
+                st.success("🚀 ĐANG Ở TUẦN 1 (MEV): Ứng dụng đã tự động giảm Volume. Hãy tập trung vào chất lượng kỹ thuật!")
+            else:
+                st.markdown(f"### ⚔️ TẦNG 3: MICROCYCLE (Tác chiến Tuần {current_week} / {meso_length})")
+                
+            st.progress(min(current_week / (meso_length + 1), 1.0))
+            
+            if current_week <= meso_length:
+                if st.button("▶️ Chốt Tuần. Tiến sang Tuần Tiếp Theo"):
+                    supabase.table("userprofile").update({"micro_week": current_week + 1}).eq("id", 1).execute()
+                    st.rerun()
+            
+            if current_week > meso_length:
+                with st.form("deload_finish_form"):
+                    next_goal = st.selectbox("Mục tiêu chiến dịch tới:", ["Hypertrophy (Tăng cơ)", "Strength (Sức mạnh)"])
+                    if st.form_submit_button("Hoàn thành Deload & Bắt đầu Chiến Dịch Mới"):
+                        current_phase = u.get("meso_phase", 1)
+                        supabase.table("userprofile").update({
+                            "micro_week": 1, 
+                            "meso_phase": current_phase + 1, 
+                            "meso_goal": next_goal
+                        }).eq("id", 1).execute()
+                        st.rerun()
+                        
     elif menu == "⚙️ Tam Giác":
         st.header("⚙️ Cấu Hình Cốt Lõi")
         with st.form("triad_form"):
