@@ -7,8 +7,8 @@ import json
 # ==========================================
 # CẤU HÌNH KẾT NỐI
 # ==========================================
-URL = "DÁN_URL_CỦA_BẠN_VÀO_ĐÂY"
-KEY = "DÁN_KEY_CỦA_BẠN_VÀO_ĐÂY"
+URL = "https://kkdxkyoghdaneoblajng.supabase.co/rest/v1/"
+KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZHhreW9naGRhbmVvYmxham5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NjkzODUsImV4cCI6MjA5MzQ0NTM4NX0.GmsHiN5F5KCnV5U0cjTa1adq2Mn371eORUCpPL44Ruw"
 
 clean_url = URL.strip().replace('/rest/v1', '').rstrip('/')
 clean_key = KEY.strip()
